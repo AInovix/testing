@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Use DEVELOPMENT builds so hooks like useCallback are available -->
+    <!-- Development builds for hooks visibility -->
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -72,15 +72,14 @@
     </div>
     
     <div id="root">
-        <!-- Fallback if React fails to mount -->
+        <!-- Fallback message if render fails -->
         <div style="color: #ff2d55; padding: 80px 20px; text-align: center; font-family: monospace;">
-            Loading failed — check browser console (F12) for errors.<br>
-            Try refreshing or a different browser.
+            Render failed — open console (F12) for details.<br>Try refreshing.
         </div>
     </div>
     
     <script>
-        // Loading animation
+        // Loading messages
         var loadMsgs = ['INITIALIZING...', 'CONNECTING FEEDS...', 'LOADING DATA...', 'READY'];
         var loadIdx = 0;
         var loadInterval = setInterval(function() {
@@ -98,8 +97,6 @@
     </script>
     
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
-
         const DEFCON = { 1: { n: 'COCKED PISTOL', d: 'Nuclear war imminent', c: '#ff2d55' }, 2: { n: 'FAST PACE', d: 'Next step to nuclear war', c: '#ff3b30' }, 3: { n: 'ROUND HOUSE', d: 'Air Force ready 15 min', c: '#ff9500' }, 4: { n: 'DOUBLE TAKE', d: 'Above normal', c: '#5ac8fa' }, 5: { n: 'FADE OUT', d: 'Normal readiness', c: '#34c759' } };
         
         const ZONES = [
@@ -122,10 +119,10 @@
         const newsLevel = t => { const l = t.toLowerCase(); return /killed|dead|attack|strike|war|crisis|missile/.test(l) ? 'critical' : /military|troops|tension|nuclear|protest/.test(l) ? 'elevated' : 'watch'; };
 
         const useNews = (url, src) => {
-            const [items, setItems] = useState([]);
-            const [loading, setLoading] = useState(true);
+            const [items, setItems] = React.useState([]);
+            const [loading, setLoading] = React.useState(true);
             
-            useEffect(() => {
+            React.useEffect(() => {
                 const load = async () => {
                     try {
                         const r = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(url)}`);
@@ -147,7 +144,7 @@
         };
 
         const usePolymarket = () => {
-            const [data, setData] = useState([
+            const [data, setData] = React.useState([
                 { q: 'Russia-Ukraine Ceasefire Jan 31?', p: 3, v: '$16M' },
                 { q: 'Russia-Ukraine Ceasefire 2026?', p: 42, v: '$7M' },
                 { q: 'Israel Strikes Iran Jan 31?', p: 19, v: '$11M' },
@@ -159,7 +156,7 @@
                 { q: 'Fed Holds Rates Jan?', p: 81, v: '$385M' },
             ]);
             
-            useEffect(() => {
+            React.useEffect(() => {
                 const load = async () => {
                     try {
                         const r = await fetch('https://gamma-api.polymarket.com/markets?closed=false&limit=100');
@@ -176,8 +173,6 @@
             
             return data;
         };
-
-        // ──────────────────────────────────────────────── Components below unchanged except minor cleanups
 
         const Header = ({ time }) => (
             <header className="bg-p-panel border-b border-p-border sticky top-0 z-40">
@@ -240,8 +235,9 @@
         );
 
         const Map = () => {
-            const ref = useRef(null), map = useRef(null);
-            useEffect(() => {
+            const ref = React.useRef(null);
+            const map = React.useRef(null);
+            React.useEffect(() => {
                 if (!ref.current || map.current) return;
                 map.current = L.map(ref.current, { center: [25, 20], zoom: 2, minZoom: 2, maxZoom: 8, zoomControl: false, attributionControl: false });
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map.current);
@@ -252,7 +248,7 @@
                         .addTo(map.current)
                         .bindPopup(`<div style="font-family:JetBrains Mono;min-width:180px"><div style="font-size:14px;font-weight:bold;color:${colors[z.type]}">${z.name}</div><div style="font-size:10px;color:#8b949e;margin:4px 0">${z.country} • ${z.pop}</div><div style="display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;background:${colors[z.type]}33;color:${colors[z.type]}">${z.type.toUpperCase()}</div><p style="font-size:10px;color:#e6edf3;margin:8px 0">${z.intel}</p><div style="background:#0a0e12;padding:6px;border-radius:4px"><div style="font-size:8px;color:#484f58">POLYMARKET</div><div style="font-size:10px;color:#00d4ff;font-weight:600">${z.pm}</div></div></div>`);
                 });
-                return () => { map.current?.remove(); map.current = null; };
+                return () => { if (map.current) { map.current.remove(); map.current = null; } };
             }, []);
             return (
                 <div className="relative h-[380px] bg-p-darker rounded-lg overflow-hidden border border-p-border">
@@ -280,7 +276,11 @@
                     <span className="text-xs text-p-muted w-7 shrink-0">{item.time}</span>
                     <div className="min-w-0">
                         <span className="text-xs text-p-cyan font-semibold">{item.src}</span>
-                        {item.link ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="block text-xs text-p-text/80 mt-0.5 hover:text-p-green">{item.text}</a> : <p className="text-xs text-p-text/80 mt-0.5">{item.text}</p>}
+                        {item.link ? (
+                            <a href={item.link} target="_blank" rel="noopener noreferrer" className="block text-xs text-p-text/80 mt-0.5 hover:text-p-green">{item.text}</a>
+                        ) : (
+                            <p className="text-xs text-p-text/80 mt-0.5">{item.text}</p>
+                        )}
                     </div>
                 </div>
             </div>
@@ -307,8 +307,8 @@
         };
 
         const TwitterPanel = () => {
-            const ref = useRef(null);
-            useEffect(() => { if (window.twttr?.widgets) window.twttr.widgets.load(ref.current); }, []);
+            const ref = React.useRef(null);
+            React.useEffect(() => { if (window.twttr?.widgets) window.twttr.widgets.load(ref.current); }, []);
             return (
                 <Panel title="𝕏 TWITTER" badge="LIVE" color="red">
                     <div ref={ref}>
@@ -391,8 +391,11 @@
         };
 
         const App = () => {
-            const [time, setTime] = useState(fmtTime());
-            useEffect(() => { const t = setInterval(() => setTime(fmtTime()), 1000); return () => clearInterval(t); }, []);
+            const [time, setTime] = React.useState(fmtTime());
+            React.useEffect(() => {
+                const t = setInterval(() => setTime(fmtTime()), 1000);
+                return () => clearInterval(t);
+            }, []);
             
             return (
                 <div className="min-h-screen bg-p-black">
@@ -409,12 +412,18 @@
                             <Map />
                         </section>
                         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
-                            <div className="space-y-3"><OsintPanel /><TwitterPanel /></div>
+                            <div className="space-y-3">
+                                <OsintPanel />
+                                <TwitterPanel />
+                            </div>
                             <div className="space-y-3">
                                 <NewsPanel title="📰 BBC WORLD" url="https://feeds.bbci.co.uk/news/world/rss.xml" src="BBC" />
                                 <NewsPanel title="🌐 AL JAZEERA" url="https://www.aljazeera.com/xml/rss/all.xml" src="AJ" />
                             </div>
-                            <div className="space-y-3"><PolymarketPanel /><MarketsPanel /></div>
+                            <div className="space-y-3">
+                                <PolymarketPanel />
+                                <MarketsPanel />
+                            </div>
                         </div>
                         <footer className="mt-6 pt-3 border-t border-p-border text-center text-xs text-p-muted">
                             <p>PULSE v2.4 • OSINT Dashboard</p>
@@ -429,7 +438,22 @@
             );
         };
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><App /></React.StrictMode>);
+        // Delay render slightly to help babel-standalone settle
+        setTimeout(() => {
+            try {
+                ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+                console.log("PULSE dashboard rendered successfully");
+            } catch (err) {
+                console.error("Render failed:", err);
+                document.getElementById('root').innerHTML = `
+                    <div style="color:#ff2d55; padding:40px; text-align:center; font-family:monospace;">
+                        <h2>Render Error</h2>
+                        <pre style="background:#0a0e12; padding:16px; border-radius:8px; overflow:auto; max-width:90%; margin:20px auto;">${err.message}</pre>
+                        <p>Open console (F12) for more details.</p>
+                    </div>
+                `;
+            }
+        }, 100);
     </script>
 </body>
 </html>
