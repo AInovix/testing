@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="TITAN | Global Situational Awareness">
-    <meta name="theme-color" content="#030712">
-    
-    <title>TITAN | Global Intelligence</title>
+    <title>TITAN | Global Situational Awareness</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,13 +20,12 @@
     
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         sys: {
-                            black: '#030712', // Richer black
-                            panel: 'rgba(17, 24, 39, 0.7)', // Glassy panel
+                            black: '#030712',
+                            panel: 'rgba(17, 24, 39, 0.7)',
                             border: 'rgba(255, 255, 255, 0.08)',
                             cyan: '#00f0ff',
                             red: '#ff2a2a',
@@ -45,13 +41,17 @@
                         display: ['Space Grotesk', 'sans-serif'],
                     },
                     animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'scanline': 'scanline 8s linear infinite',
+                        'blink-red': 'blink-red 2s infinite',
                     },
                     keyframes: {
                         scanline: {
                             '0%': { transform: 'translateY(-100%)' },
                             '100%': { transform: 'translateY(100vh)' }
+                        },
+                        'blink-red': {
+                            '0%, 100%': { opacity: '1', textShadow: '0 0 5px red' },
+                            '50%': { opacity: '0.5', textShadow: 'none' }
                         }
                     }
                 }
@@ -60,81 +60,34 @@
     </script>
     
     <style>
-        /* === GLOBAL RESET & FX === */
-        :root {
-            --primary-glow: 0 0 10px rgba(0, 240, 255, 0.1);
-            --crt-line-color: rgba(255, 255, 255, 0.02);
-        }
-
+        :root { --crt-line-color: rgba(255, 255, 255, 0.02); }
         body {
-            background-color: #030712;
-            color: #e2e8f0;
-            overflow: hidden;
-            background-image: 
-                linear-gradient(rgba(17, 24, 39, 0.9) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(17, 24, 39, 0.9) 1px, transparent 1px);
+            background-color: #030712; color: #e2e8f0; overflow: hidden;
+            background-image: linear-gradient(rgba(17, 24, 39, 0.9) 1px, transparent 1px), linear-gradient(90deg, rgba(17, 24, 39, 0.9) 1px, transparent 1px);
             background-size: 40px 40px;
         }
-
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
-        ::-webkit-scrollbar-thumb:hover { background: #00f0ff; }
-
-        /* Map Styling - The "Night Vision" Look */
+        
+        /* Map Styles */
         .leaflet-container { background: #0b1121 !important; }
         .leaflet-tile-pane { filter: grayscale(100%) invert(100%) contrast(1.1) brightness(0.8); }
-        .leaflet-popup-content-wrapper { 
-            background: rgba(3, 7, 18, 0.95) !important; 
-            border: 1px solid #00f0ff !important; 
-            border-radius: 0 !important; 
-            color: #fff !important; 
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
-        }
+        .leaflet-popup-content-wrapper { background: rgba(3, 7, 18, 0.95) !important; border: 1px solid #00f0ff !important; border-radius: 0 !important; color: #fff !important; }
         .leaflet-popup-tip { background: #00f0ff !important; }
-
-        /* FX Layers */
-        .scanline {
-            position: fixed; top: 0; left: 0; width: 100%; height: 2px;
-            background: rgba(0, 240, 255, 0.1);
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
-            z-index: 9999; pointer-events: none;
-            animation: scanline 6s linear infinite;
-        }
         
-        .vignette {
-            position: fixed; inset: 0; pointer-events: none; z-index: 9000;
-            background: radial-gradient(circle, transparent 60%, #030712 100%);
-        }
-
-        /* Animations */
-        @keyframes blink-red { 0%, 100% { opacity: 1; text-shadow: 0 0 5px red; } 50% { opacity: 0.5; text-shadow: none; } }
-        .animate-blink-red { animation: blink-red 2s infinite; }
+        /* FX */
+        .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 240, 255, 0.1); box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); z-index: 9999; pointer-events: none; animation: scanline 6s linear infinite; }
+        .vignette { position: fixed; inset: 0; pointer-events: none; z-index: 9000; background: radial-gradient(circle, transparent 60%, #030712 100%); }
         
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        /* Tactical Decoration */
-        .corner-bracket {
-            position: absolute; width: 8px; height: 8px;
-            border-color: rgba(0, 240, 255, 0.3); border-style: solid;
-            transition: all 0.3s ease;
-        }
+        /* Tactical UI */
+        .corner-bracket { position: absolute; width: 8px; height: 8px; border-color: rgba(0, 240, 255, 0.3); border-style: solid; transition: all 0.3s ease; }
         .panel-container:hover .corner-bracket { border-color: rgba(0, 240, 255, 0.8); width: 12px; height: 12px; }
-        
         .tl { top: 0; left: 0; border-width: 1px 0 0 1px; }
         .tr { top: 0; right: 0; border-width: 1px 1px 0 0; }
         .bl { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
         .br { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
-
-        .glass-panel {
-            background: rgba(10, 15, 25, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .chart-container canvas { height: 100% !important; }
+        .glass-panel { background: rgba(10, 15, 25, 0.6); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
@@ -143,18 +96,27 @@
     <div class="vignette"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback, createContext, useContext } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
 
-        // ============ CONSTANTS & CONFIG ============
-        const APP_VERSION = "TITAN v4.2";
-        const DEFCON = {
-            1: { name: 'COCKED PISTOL', color: '#ff2a2a' },
-            2: { name: 'FAST PACE', color: '#ff5f2a' },
-            3: { name: 'ROUND HOUSE', color: '#ffae00' },
-            4: { name: 'DOUBLE TAKE', color: '#00f0ff' },
-            5: { name: 'FADE OUT', color: '#00ff9d' },
-        };
+        // ============ ERROR BOUNDARY (PREVENTS CRASHES) ============
+        class ErrorBoundary extends React.Component {
+            constructor(props) { super(props); this.state = { hasError: false }; }
+            static getDerivedStateFromError(error) { return { hasError: true }; }
+            componentDidCatch(error, info) { console.error('TITAN Error:', error, info); }
+            render() {
+                if (this.state.hasError) {
+                    return (
+                        <div className="h-screen w-full flex items-center justify-center bg-[#030712] text-sys-red font-mono flex-col gap-4">
+                            <div className="text-xl font-bold border border-sys-red p-4 rounded bg-sys-red/10">SYSTEM FAILURE // RENDER ERROR</div>
+                            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-sys-cyan text-black font-bold hover:bg-white">REBOOT SYSTEM</button>
+                        </div>
+                    );
+                }
+                return this.props.children;
+            }
+        }
 
+        // ============ CONFIG ============
         const ZONES = [
             { id: 1, name: 'KYIV', region: 'UKR', coords: [50.45, 30.52], level: 'critical', activity: 95 },
             { id: 2, name: 'KHARKIV', region: 'UKR', coords: [49.99, 36.23], level: 'critical', activity: 88 },
@@ -185,7 +147,7 @@
             return Math.floor(s / 86400) + 'D';
         };
 
-        const safeFetch = async (url, timeout = 8000) => {
+        const safeFetch = async (url, timeout = 5000) => {
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), timeout);
             try {
@@ -199,7 +161,7 @@
         };
 
         const fetchWithProxy = async (url) => {
-             const proxies = [
+            const proxies = [
                 (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
                 (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`
             ];
@@ -216,8 +178,10 @@
         const useNews = () => {
             const [news, setNews] = useState([]);
             const [loading, setLoading] = useState(true);
-            
+            const mounted = useRef(true);
+
             const fetchNews = useCallback(async () => {
+                if (!mounted.current) return;
                 setLoading(true);
                 const feeds = [
                     { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', src: 'BBC' },
@@ -241,21 +205,25 @@
                     } catch(e) {}
                 }
                 
-                if (combined.length) {
+                if (mounted.current && combined.length) {
                     setNews(combined.sort((a,b) => new Date(b.pubDate) - new Date(a.pubDate)).slice(0, 25));
                 }
-                setLoading(false);
+                if (mounted.current) setLoading(false);
             }, []);
 
-            useEffect(() => { fetchNews(); const t = setInterval(fetchNews, 120000); return () => clearInterval(t); }, []);
-            return { news, loading, refresh: fetchNews };
+            useEffect(() => {
+                mounted.current = true;
+                fetchNews();
+                const t = setInterval(fetchNews, 120000);
+                return () => { mounted.current = false; clearInterval(t); };
+            }, []);
+            return { news, loading };
         };
 
         const usePolymarket = () => {
             const [markets, setMarkets] = useState([]);
-            const [loading, setLoading] = useState(true);
+            const mounted = useRef(true);
 
-            // Hardcoded fallbacks to ensure UI always looks good if API fails
             const FALLBACKS = [
                 { q: 'Russia x Ukraine Ceasefire 2026?', p: 13, v: '16M' },
                 { q: 'China Invades Taiwan 2026?', p: 8, v: '12M' },
@@ -266,7 +234,7 @@
             ];
 
             const fetchMarkets = useCallback(async () => {
-                setLoading(true);
+                if (!mounted.current) return;
                 let data = [];
                 try {
                     const res = await fetchWithProxy('https://gamma-api.polymarket.com/markets?closed=false&limit=50&tag_id=1');
@@ -284,47 +252,58 @@
                     }
                 } catch(e) {}
                 
-                setMarkets(data.length > 2 ? data : FALLBACKS);
-                setLoading(false);
+                if (mounted.current) setMarkets(data.length > 2 ? data : FALLBACKS);
             }, []);
 
-            useEffect(() => { fetchMarkets(); const t = setInterval(fetchMarkets, 60000); return () => clearInterval(t); }, []);
-            return { markets, loading, refresh: fetchMarkets };
+            useEffect(() => {
+                mounted.current = true;
+                fetchMarkets();
+                const t = setInterval(fetchMarkets, 60000);
+                return () => { mounted.current = false; clearInterval(t); };
+            }, []);
+            return { markets };
         };
 
         const useMarketData = () => {
             const [data, setData] = useState([]);
             const [history, setHistory] = useState([]);
-            const [loading, setLoading] = useState(true);
+            const mounted = useRef(true);
 
             const fetchData = useCallback(async () => {
-                setLoading(true);
+                if (!mounted.current) return;
                 try {
                     const res = await safeFetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
                     if (res?.ok) {
                         const json = await res.json();
-                        const items = [
-                            { s: 'BTC', n: 'BITCOIN', v: json.bitcoin.usd, c: json.bitcoin.usd_24h_change },
-                            { s: 'ETH', n: 'ETHEREUM', v: json.ethereum.usd, c: json.ethereum.usd_24h_change },
-                            { s: 'SOL', n: 'SOLANA', v: json.solana.usd, c: json.solana.usd_24h_change },
-                            { s: 'SPX', n: 'S&P 500', v: 5998.20, c: 0.45 }, // Simulated
-                            { s: 'GLD', n: 'GOLD', v: 2714.50, c: 1.2 },    // Simulated
-                            { s: 'OIL', n: 'WTI CRUDE', v: 78.40, c: -0.5 }, // Simulated
-                        ];
-                        setData(items);
-                        // Fake history update for chart
-                        setHistory(prev => [...prev.slice(-30), json.bitcoin.usd + (Math.random()*100 - 50)]);
+                        if (mounted.current && json.bitcoin) {
+                             const items = [
+                                { s: 'BTC', n: 'BITCOIN', v: json.bitcoin.usd, c: json.bitcoin.usd_24h_change },
+                                { s: 'ETH', n: 'ETHEREUM', v: json.ethereum.usd, c: json.ethereum.usd_24h_change },
+                                { s: 'SOL', n: 'SOLANA', v: json.solana.usd, c: json.solana.usd_24h_change },
+                                { s: 'SPX', n: 'S&P 500', v: 5998.20, c: 0.45 },
+                                { s: 'GLD', n: 'GOLD', v: 2714.50, c: 1.2 },
+                                { s: 'OIL', n: 'WTI CRUDE', v: 78.40, c: -0.5 },
+                            ];
+                            setData(items);
+                            setHistory(prev => {
+                                const newHist = [...prev, json.bitcoin.usd];
+                                return newHist.length > 30 ? newHist.slice(-30) : newHist;
+                            });
+                        }
                     }
                 } catch(e) {}
-                setLoading(false);
             }, []);
 
-            useEffect(() => { fetchData(); const t = setInterval(fetchData, 30000); return () => clearInterval(t); }, []);
-            return { data, history, loading, refresh: fetchData };
+            useEffect(() => {
+                mounted.current = true;
+                fetchData();
+                const t = setInterval(fetchData, 30000);
+                return () => { mounted.current = false; clearInterval(t); };
+            }, []);
+            return { data, history };
         };
 
         // ============ UI COMPONENTS ============
-
         const CornerBrackets = () => (
             <>
                 <div className="corner-bracket tl"></div>
@@ -366,9 +345,6 @@
                             <h1 className="font-display font-bold text-2xl tracking-[0.2em] text-white leading-none">TITAN</h1>
                             <span className="font-mono text-[9px] text-sys-cyan tracking-widest opacity-70">INTELLIGENCE OS</span>
                         </div>
-                        <div className="hidden md:flex gap-1">
-                            {[1,2,3].map(i => <div key={i} className="w-1 h-4 bg-sys-cyan/30 transform skew-x-12"></div>)}
-                        </div>
                     </div>
                     
                     <div className="flex items-center gap-6">
@@ -392,34 +368,45 @@
         };
 
         const MapView = () => {
-            const mapRef = useRef(null);
+            const mapContainerRef = useRef(null);
+            const mapInstanceRef = useRef(null);
             
             useEffect(() => {
-                if (!mapRef.current) return;
-                const map = L.map(mapRef.current, { zoomControl: false, attributionControl: false, center: [30, 15], zoom: 2 });
+                // STABILITY CHECK: Don't init if already exists
+                if (!mapContainerRef.current || mapInstanceRef.current) return;
                 
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(map);
+                try {
+                    const map = L.map(mapContainerRef.current, { zoomControl: false, attributionControl: false, center: [30, 15], zoom: 2 });
+                    mapInstanceRef.current = map;
+                    
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 19 }).addTo(map);
 
-                // Heatmap
-                const heatPoints = ZONES.map(z => [...z.coords, z.level === 'critical' ? 1.0 : 0.6]);
-                L.heatLayer(heatPoints, { radius: 35, blur: 20, gradient: { 0.4: '#00f0ff', 0.65: '#ffae00', 1.0: '#ff2a2a' } }).addTo(map);
+                    const heatPoints = ZONES.map(z => [...z.coords, z.level === 'critical' ? 1.0 : 0.6]);
+                    L.heatLayer(heatPoints, { radius: 35, blur: 20, gradient: { 0.4: '#00f0ff', 0.65: '#ffae00', 1.0: '#ff2a2a' } }).addTo(map);
 
-                // Markers
-                ZONES.forEach(z => {
-                    const color = z.level === 'critical' ? '#ff2a2a' : z.level === 'elevated' ? '#ffae00' : '#00f0ff';
-                    const icon = L.divIcon({
-                        className: 'custom-icon',
-                        html: `<div style="width:12px;height:12px;border:2px solid ${color};background:${color}33;transform:rotate(45deg);box-shadow:0 0 10px ${color}"></div>`,
-                        iconSize: [12, 12]
+                    ZONES.forEach(z => {
+                        const color = z.level === 'critical' ? '#ff2a2a' : z.level === 'elevated' ? '#ffae00' : '#00f0ff';
+                        const icon = L.divIcon({
+                            className: 'custom-icon',
+                            html: `<div style="width:12px;height:12px;border:2px solid ${color};background:${color}33;transform:rotate(45deg);box-shadow:0 0 10px ${color}"></div>`,
+                            iconSize: [12, 12]
+                        });
+                        L.marker(z.coords, { icon }).addTo(map)
+                        .bindPopup(`<div style="font-family:'Space Grotesk';font-weight:700;color:${color}">${z.name}</div><div style="font-size:10px;color:#aaa">${z.region} // ACT: ${z.activity}%</div>`);
                     });
-                    L.marker(z.coords, { icon }).addTo(map)
-                      .bindPopup(`<div style="font-family:'Space Grotesk';font-weight:700;color:${color}">${z.name}</div><div style="font-size:10px;color:#aaa">${z.region} // ACT: ${z.activity}%</div>`);
-                });
+                } catch (e) {
+                    console.error("Map Init Error:", e);
+                }
 
-                return () => map.remove();
+                return () => {
+                    if (mapInstanceRef.current) {
+                        mapInstanceRef.current.remove();
+                        mapInstanceRef.current = null;
+                    }
+                };
             }, []);
 
-            return <div ref={mapRef} className="w-full h-full opacity-90" style={{background:'#0b1121'}}></div>;
+            return <div ref={mapContainerRef} className="w-full h-full opacity-90" style={{background:'#0b1121'}}></div>;
         };
 
         const Ticker = ({ news }) => {
@@ -432,7 +419,7 @@
                         <span className="w-2 h-2 bg-sys-red rounded-full animate-blink-red mr-2"></span>
                         <span className="font-mono text-xs font-bold text-sys-red tracking-widest">CRITICAL</span>
                     </div>
-                    <div className="flex whitespace-nowrap animate-[ticker_60s_linear_infinite]">
+                    <div className="flex whitespace-nowrap animate-[scanline_60s_linear_infinite]">
                         {[...items, ...items, ...items].map((n, i) => (
                             <span key={i} className="mx-8 font-mono text-xs text-sys-red/90 flex items-center gap-2">
                                 <span className="opacity-50 text-[10px]">[{n.src}]</span>
@@ -445,11 +432,12 @@
         };
 
         const IntelFeed = () => {
-            const { news, loading, refresh } = useNews();
+            const { news, loading } = useNews();
             return (
                 <Panel title="WIRE" status="LIVE">
                     <div className="flex flex-col">
-                        {news.map((n, i) => (
+                        {loading && <div className="p-4 text-xs font-mono text-sys-cyan animate-pulse">ESTABLISHING UPLINK...</div>}
+                        {!loading && news.map((n, i) => (
                             <a key={i} href={n.link} target="_blank" className={`p-3 border-b border-sys-border hover:bg-sys-cyan/5 transition-colors group relative ${n.level === 'critical' ? 'border-l-2 border-l-sys-red bg-sys-red/5' : ''}`}>
                                 <div className="flex justify-between items-baseline mb-1">
                                     <span className={`font-mono text-[9px] px-1 rounded ${n.level === 'critical' ? 'text-sys-red bg-sys-red/10' : 'text-sys-cyan bg-sys-cyan/10'}`}>{n.src}</span>
@@ -466,7 +454,7 @@
         };
 
         const PredictionTerminal = () => {
-            const { markets, refresh } = usePolymarket();
+            const { markets } = usePolymarket();
             return (
                 <Panel title="PROBABILITY" status="POLYMARKET">
                     <div className="flex flex-col">
@@ -493,36 +481,51 @@
         const MarketData = () => {
             const { data, history } = useMarketData();
             const chartRef = useRef(null);
+            const chartInstance = useRef(null);
             
             useEffect(() => {
-                if(!chartRef.current || !history.length) return;
-                const chart = new Chart(chartRef.current, {
-                    type: 'line',
-                    data: { 
-                        labels: history.map((_,i) => i), 
-                        datasets: [{ 
-                            data: history, 
-                            borderColor: '#00f0ff', 
-                            borderWidth: 1, 
-                            pointRadius: 0,
-                            fill: true,
-                            backgroundColor: (ctx) => {
-                                const gradient = ctx.chart.ctx.createLinearGradient(0,0,0,100);
-                                gradient.addColorStop(0, 'rgba(0, 240, 255, 0.2)');
-                                gradient.addColorStop(1, 'rgba(0, 240, 255, 0)');
-                                return gradient;
-                            }
-                        }] 
-                    },
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        plugins: { legend: { display: false } }, 
-                        scales: { x: { display: false }, y: { display: false } },
-                        animation: false
+                if(!chartRef.current || history.length < 2) return;
+                
+                // Destroy old instance to prevent crashes/memory leaks
+                if (chartInstance.current) {
+                    chartInstance.current.destroy();
+                }
+
+                try {
+                    chartInstance.current = new Chart(chartRef.current, {
+                        type: 'line',
+                        data: { 
+                            labels: history.map((_,i) => i), 
+                            datasets: [{ 
+                                data: history, 
+                                borderColor: '#00f0ff', 
+                                borderWidth: 1, 
+                                pointRadius: 0,
+                                fill: true,
+                                backgroundColor: (ctx) => {
+                                    const gradient = ctx.chart.ctx.createLinearGradient(0,0,0,100);
+                                    gradient.addColorStop(0, 'rgba(0, 240, 255, 0.2)');
+                                    gradient.addColorStop(1, 'rgba(0, 240, 255, 0)');
+                                    return gradient;
+                                }
+                            }] 
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { display: false } }, 
+                            scales: { x: { display: false }, y: { display: false } },
+                            animation: false
+                        }
+                    });
+                } catch (e) { console.error("Chart Error:", e); }
+
+                return () => {
+                    if (chartInstance.current) {
+                        chartInstance.current.destroy();
+                        chartInstance.current = null;
                     }
-                });
-                return () => chart.destroy();
+                };
             }, [history]);
 
             return (
@@ -569,6 +572,7 @@
         // ============ APP LAYOUT ============
         const App = () => {
             const { news } = useNews();
+            const [mobileOpen, setMobileOpen] = useState(false);
             
             return (
                 <div className="h-screen flex flex-col relative z-10">
@@ -578,10 +582,12 @@
                     <main className="flex-1 overflow-hidden p-3 md:p-4">
                         <div className="h-full grid grid-cols-1 md:grid-cols-12 gap-4">
                             
-                            {/* LEFT COLUMN - INTEL */}
-                            <div className="hidden md:flex md:col-span-3 flex-col gap-4 min-h-0">
+                            {/* LEFT COLUMN - INTEL (Hidden on mobile unless open) */}
+                            <div className={`md:flex md:col-span-3 flex-col gap-4 min-h-0 ${mobileOpen ? 'fixed inset-0 z-50 bg-[#030712] p-4 flex' : 'hidden'}`}>
+                                {mobileOpen && <button onClick={() => setMobileOpen(false)} className="absolute top-4 right-4 text-sys-cyan font-bold">CLOSE [X]</button>}
                                 <div className="flex-[3] min-h-0"><IntelFeed /></div>
                                 <div className="flex-[2] min-h-0"><OsintSources /></div>
+                                <div className="flex-[2] md:hidden min-h-0"><PredictionTerminal /></div>
                             </div>
                             
                             {/* CENTER COLUMN - MAP */}
@@ -595,8 +601,6 @@
                                         
                                         <div className="absolute top-4 left-4 font-mono text-[9px] text-sys-cyan bg-sys-black/80 px-1">LIVE FEED // SAT-4</div>
                                         <div className="absolute bottom-4 right-4 font-mono text-[9px] text-sys-red bg-sys-black/80 px-1 animate-pulse">REC ●</div>
-                                        
-                                        {/* Crosshairs */}
                                         <div className="absolute top-1/2 left-1/2 w-8 h-8 -translate-x-1/2 -translate-y-1/2 border border-sys-cyan/30 rounded-full flex items-center justify-center">
                                             <div className="w-1 h-1 bg-sys-cyan rounded-full"></div>
                                         </div>
@@ -614,9 +618,9 @@
                         </div>
                     </main>
                     
-                    {/* MOBILE DRAWER TOGGLE (Simplified for demo) */}
+                    {/* MOBILE TOGGLE */}
                     <div className="md:hidden fixed bottom-6 right-6 z-50">
-                        <button className="w-12 h-12 bg-sys-cyan text-sys-black rounded-full shadow-lg shadow-sys-cyan/50 flex items-center justify-center font-bold">
+                        <button onClick={() => setMobileOpen(!mobileOpen)} className="w-12 h-12 bg-sys-cyan text-sys-black rounded-full shadow-lg shadow-sys-cyan/50 flex items-center justify-center font-bold">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
                         </button>
                     </div>
@@ -624,7 +628,11 @@
             );
         };
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(
+            <ErrorBoundary>
+                <App />
+            </ErrorBoundary>
+        );
     </script>
 </body>
 </html>
